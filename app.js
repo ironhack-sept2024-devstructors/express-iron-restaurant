@@ -40,6 +40,21 @@ app.get("/pizzas", function (req, res, next) {
 });
 
 
+// GET /pizzas/:pizzaId
+app.get("/pizzas/:pizzaId", function(req, res, next){
+
+    const { pizzaId } = req.params;
+
+    const pizzaDetails = pizzasArr.find((pizzaObj) => {
+        return pizzaObj.id == pizzaId;
+    });    
+    
+    res.json(pizzaDetails);
+});
+
+
+
+
 app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`) });
 
 
