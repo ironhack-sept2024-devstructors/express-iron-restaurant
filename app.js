@@ -3,6 +3,7 @@ const logger = require("morgan");
 const mongoose = require("mongoose");
 
 const Pizza = require("./models/Pizza.model");
+const Cook = require("./models/Cook.model");
 
 const app = express();
 
@@ -44,7 +45,6 @@ app.get("/contact", (req, res, next) => {
 });
 
 
-
 // POST /pizzas
 app.post("/pizzas", (req, res, next) => {
 
@@ -62,8 +62,6 @@ app.post("/pizzas", (req, res, next) => {
 })
 
 
-
-
 // GET /pizzas
 // GET /pizzas?maxPrice=15
 app.get("/pizzas", (req, res, next) => {
@@ -77,6 +75,7 @@ app.get("/pizzas", (req, res, next) => {
     }
 
     Pizza.find(filter)
+        .populate("cook")
         .then(pizzasFromDB => {
             res.json(pizzasFromDB);
         })
@@ -94,6 +93,7 @@ app.get("/pizzas/:pizzaId", (req, res, next) => {
     const { pizzaId } = req.params;
 
     Pizza.findById(pizzaId)
+        .populate("cook")
         .then(pizzaFromDB => {
             res.json(pizzaFromDB);
         })
@@ -141,6 +141,22 @@ app.delete("/pizzas/:pizzaId", (req, res, next) => {
 });
 
 
+
+// POST /cooks
+app.post("/cooks", (req, res, next) => {
+    
+    const newCook = req.body;
+
+    Cook.create(newCook)
+        .then( cookFromDB => {
+            res.status(201).json(cookFromDB);
+        })
+        .catch(error => {
+            console.log("Error creating a new cook in the DB...");
+            console.log(error);
+            res.status(500).json({ error: "Failed to create a new cook" });
+        });
+});
 
 
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}...`) });

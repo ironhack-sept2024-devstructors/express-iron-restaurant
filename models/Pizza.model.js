@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+
 const pizzaSchema = new Schema({
     title: {
         type: String,
@@ -21,6 +22,11 @@ const pizzaSchema = new Schema({
     dough: {
         type: String,
         enum: ["thin", "extra thin", "with cheese", "with garlic"]
+    },
+    cook: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Cook",
+        required: true
     }
 });
 
