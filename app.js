@@ -4,8 +4,6 @@ const mongoose = require("mongoose");
 
 const Pizza = require("./models/Pizza.model");
 
-const pizzasArr = require("./data/pizzas");
-
 const app = express();
 
 const PORT = 3000;
@@ -70,21 +68,23 @@ app.post("/pizzas", (req, res, next) => {
 // GET /pizzas?maxPrice=15
 app.get("/pizzas", (req, res, next) => {
 
-    const maxPrice = req.query.maxPrice;
+    const { maxPrice } = req.query;
 
-    // if maxPrice not provided, return the whole list
-    if(maxPrice === undefined){
-        res.json(pizzasArr);
-        return;
+    let filter = {};
+
+    if(maxPrice){
+        filter = {price: {$lte: maxPrice}};
     }
 
-    
-    // if maxPrice is provided, return only the pizzas with that maximum price
-    const filteredPizzas = pizzasArr.filter( (pizzaObj) => {
-        return pizzaObj.price <= parseFloat(maxPrice);
-    });
-    
-    res.json(filteredPizzas);
+    Pizza.find(filter)
+        .then( pizzasFromDB => {
+            res.json(pizzasFromDB);
+        })
+        .catch( error => {
+            console.log("Error getting pizzas from DB...");
+            console.log(error);
+            res.status(500).json({ error: "Failed to get list of pizzas" });
+        });
 });
 
 
@@ -93,13 +93,52 @@ app.get("/pizzas/:pizzaId", (req, res, next) => {
 
     const { pizzaId } = req.params;
 
-    const pizzaDetails = pizzasArr.find((pizzaObj) => {
-        return pizzaObj.id == pizzaId;
-    });
-
-    res.json(pizzaDetails);
+    Pizza.findById(pizzaId)
+        .then( pizzaFromDB => {
+            res.json(pizzaFromDB);
+        })
+        .catch( error => {
+            console.log("Error getting pizza details from DB...");
+            console.log(error);
+            res.status(500).json({ error: "Failed to get pizza details" });
+        });
 });
 
+
+// PATCH /pizzas/:pizzaId
+app.patch("/pizzas/:pizzaId", (req, res, next) => {
+
+    const { pizzaId } = req.params;
+
+    const newDetails = req.body;
+
+    Pizza.findByIdAndUpdate(pizzaId, newDetails, { new: true })
+        .then( pizzaFromDB => {
+            res.json(pizzaFromDB);
+        })
+        .catch((error) => {
+            console.error("Error updating pizza...");
+            console.error(error);
+            res.status(500).json({ error: "Failed to update a pizza" });
+        });
+});
+
+
+// DELETE /pizzas/:pizzaId
+app.delete("/pizzas/:pizzaId", (req, res, next) => {
+
+    const { pizzaId } = req.params;
+
+    Pizza.findByIdAndDelete(pizzaId)
+        .then( response => {
+            res.json(response);
+        })
+        .catch((error) => {
+            console.error("Error deleting pizza...");
+            console.error(error);
+            res.status(500).json({ error: "Failed to delete a pizza" });
+        });
+});
 
 
 
