@@ -1,5 +1,8 @@
 const express = require("express");
 const logger = require("morgan");
+const mongoose = require("mongoose");
+
+const Pizza = require("./models/Pizza.model");
 
 const pizzasArr = require("./data/pizzas");
 
@@ -17,6 +20,19 @@ app.use(express.static("public"));
 app.use(express.json());
 
 
+// 
+// Connect to DB
+// 
+mongoose.connect("mongodb://127.0.0.1:27017/iron-restaurant")
+    .then((response) => {
+        console.log(`Connected! Database Name: "${response.connections[0].name}"`);
+    })
+    .catch((error) => {
+        console.log("Error connecting to DB...")
+        console.log(error);
+    });
+
+
 
 // GET /
 app.get("/", (req, res, next) => {
@@ -28,6 +44,26 @@ app.get("/", (req, res, next) => {
 app.get("/contact", (req, res, next) => {
     res.sendFile(__dirname + "/views/contact.html");
 });
+
+
+
+// POST /pizzas
+app.post("/pizzas", (req, res, next) => {
+
+    const newPizza = req.body;
+    
+    Pizza.create(newPizza)
+        .then( pizzaFromDB => {
+            res.status(201).json(pizzaFromDB);
+        })
+        .catch( error => {
+            console.log("Error creating a new pizza in the DB...");
+            console.log(error);
+            res.status(500).json({ error: "Failed to create a new pizza" });
+        })
+})
+
+
 
 
 // GET /pizzas
@@ -63,6 +99,7 @@ app.get("/pizzas/:pizzaId", (req, res, next) => {
 
     res.json(pizzaDetails);
 });
+
 
 
 
