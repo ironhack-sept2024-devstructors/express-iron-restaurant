@@ -49,12 +49,12 @@ app.get("/contact", (req, res, next) => {
 app.post("/pizzas", (req, res, next) => {
 
     const newPizza = req.body;
-    
+
     Pizza.create(newPizza)
-        .then( pizzaFromDB => {
+        .then(pizzaFromDB => {
             res.status(201).json(pizzaFromDB);
         })
-        .catch( error => {
+        .catch(error => {
             console.log("Error creating a new pizza in the DB...");
             console.log(error);
             res.status(500).json({ error: "Failed to create a new pizza" });
@@ -72,15 +72,15 @@ app.get("/pizzas", (req, res, next) => {
 
     let filter = {};
 
-    if(maxPrice){
-        filter = {price: {$lte: maxPrice}};
+    if (maxPrice) {
+        filter = { price: { $lte: maxPrice } };
     }
 
     Pizza.find(filter)
-        .then( pizzasFromDB => {
+        .then(pizzasFromDB => {
             res.json(pizzasFromDB);
         })
-        .catch( error => {
+        .catch(error => {
             console.log("Error getting pizzas from DB...");
             console.log(error);
             res.status(500).json({ error: "Failed to get list of pizzas" });
@@ -94,10 +94,10 @@ app.get("/pizzas/:pizzaId", (req, res, next) => {
     const { pizzaId } = req.params;
 
     Pizza.findById(pizzaId)
-        .then( pizzaFromDB => {
+        .then(pizzaFromDB => {
             res.json(pizzaFromDB);
         })
-        .catch( error => {
+        .catch(error => {
             console.log("Error getting pizza details from DB...");
             console.log(error);
             res.status(500).json({ error: "Failed to get pizza details" });
@@ -113,7 +113,7 @@ app.patch("/pizzas/:pizzaId", (req, res, next) => {
     const newDetails = req.body;
 
     Pizza.findByIdAndUpdate(pizzaId, newDetails, { new: true })
-        .then( pizzaFromDB => {
+        .then(pizzaFromDB => {
             res.json(pizzaFromDB);
         })
         .catch((error) => {
@@ -130,7 +130,7 @@ app.delete("/pizzas/:pizzaId", (req, res, next) => {
     const { pizzaId } = req.params;
 
     Pizza.findByIdAndDelete(pizzaId)
-        .then( response => {
+        .then(response => {
             res.json(response);
         })
         .catch((error) => {
